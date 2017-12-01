@@ -113,13 +113,44 @@ func (this *MessageReply) Dispatch(msg MixMessage) interface{} {
 
 	//转换构造wx消息体对象
 	if replyMsg != nil {
+		return this.convert(msg, replyMsg)
 
 	}
 
 	return nil
 }
 
-//func (this *MessageReply)
+func copyFromSource(source MixMessage, target *CommonToken) {
+	target.ToUserName = source.FromUserName
+	target.FromUserName = source.ToUserName
+	target.CreateTime = GetCurrTimeStamps()
+
+}
+
+func (this *MessageReply) convert(source MixMessage, msg *ReplyMessage) interface{} {
+	if msg != nil {
+		switch msg.Type {
+		case MSG_Text:
+			targetMsg := Text{}
+			targetMsg.MsgType = MsgTypeText
+			copyFromSource(source, &targetMsg.CommonToken)
+			targetMsg.Content = msg.Content
+			return targetMsg
+		case MSG_Image:
+			targetMsg := Image{}
+			targetMsg.MsgType = MsgTypeImage
+			copyFromSource(source, &targetMsg.CommonToken)
+			targetMsg.Image.MediaID = msg.MediaId
+			return targetMsg
+
+		case MSG_Voice:
+		case MSG_Video:
+
+		}
+	}
+	return nil
+
+}
 
 func (this *MessageReply) dispatchMessage(msg MixMessage) *ReplyMessage {
 	return nil
